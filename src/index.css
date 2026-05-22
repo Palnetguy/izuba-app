@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color: #2d2d2d;
+    background: #fcfbf8;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background:
+      radial-gradient(circle at top left, rgba(0, 91, 159, 0.12), transparent 32rem),
+      linear-gradient(180deg, #fcfbf8 0%, #f7fbf7 52%, #fcfbf8 100%);
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .premium-card {
+    @apply rounded-2xl border border-gray-100/80 bg-white shadow-premium;
+  }
+
+  .glass-panel {
+    @apply border border-white/70 bg-white/75 shadow-premium backdrop-blur-md;
+  }
+}
