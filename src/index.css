@@ -21,8 +21,12 @@
     min-height: 100vh;
     margin: 0;
     background:
-      radial-gradient(circle at top left, rgba(0, 91, 159, 0.12), transparent 32rem),
-      linear-gradient(180deg, #fcfbf8 0%, #f7fbf7 52%, #fcfbf8 100%);
+      linear-gradient(rgba(45, 45, 45, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45, 45, 45, 0.035) 1px, transparent 1px),
+      radial-gradient(circle at 10% 8%, rgba(0, 91, 159, 0.12), transparent 28rem),
+      radial-gradient(circle at 88% 18%, rgba(22, 163, 74, 0.1), transparent 24rem),
+      linear-gradient(180deg, #fcfbf8 0%, #f5faf6 55%, #fcfbf8 100%);
+    background-size: 36px 36px, 36px 36px, auto, auto, auto;
   }
 
   button,
@@ -34,10 +38,18 @@
 
 @layer components {
   .premium-card {
-    @apply rounded-2xl border border-gray-100/80 bg-white shadow-premium;
+    @apply rounded-lg border border-gray-200/80 bg-white shadow-premium;
   }
 
   .glass-panel {
-    @apply border border-white/70 bg-white/75 shadow-premium backdrop-blur-md;
+    @apply rounded-lg border border-white/80 bg-white/80 shadow-premium backdrop-blur-md;
+  }
+
+  .control-button {
+    @apply rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-bold text-muted transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:text-brand hover:shadow-premium;
+  }
+
+  .mono-label {
+    @apply font-mono text-[11px] font-bold uppercase tracking-[0.16em];
   }
 }

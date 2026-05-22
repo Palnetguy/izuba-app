@@ -23,8 +23,9 @@ describe('IZUBA MVP', () => {
     renderApp()
 
     expect(screen.getByText('Available harvest')).toBeInTheDocument()
-    expect(screen.getByText('B2B Fulfillment Board')).toBeInTheDocument()
-    expect(screen.getByText('Spoilage prevented')).toBeInTheDocument()
+    expect(screen.getByText('JIT Matching Engine')).toBeInTheDocument()
+    expect(screen.getByText('Route Readiness')).toBeInTheDocument()
+    expect(screen.getByText(/Spoilage prevented by pre-orders/i)).toBeInTheDocument()
   })
 
   it('confirms a restaurant yield reservation', async () => {
@@ -34,7 +35,8 @@ describe('IZUBA MVP', () => {
     await user.click(screen.getByRole('button', { name: /restaurant/i }))
     await user.click(screen.getByRole('button', { name: /reserve yield/i }))
 
-    expect(screen.getByText(/reserved for your next delivery route/i)).toBeInTheDocument()
+    expect(screen.getByText(/reserved\. farmer fulfillment/i)).toBeInTheDocument()
+    expect(screen.getByText('Buyer Delivery Timeline')).toBeInTheDocument()
   })
 
   it('shows farmer revenue and biomass monetization screens', async () => {
@@ -46,6 +48,7 @@ describe('IZUBA MVP', () => {
     expect(screen.getByText('Revenue Ledger')).toBeInTheDocument()
     expect(screen.getByText('Biomass Monetization')).toBeInTheDocument()
     expect(screen.getByText('Transparent split')).toBeInTheDocument()
+    expect(screen.getByText('Grow Room Obligations')).toBeInTheDocument()
   })
 
   it('shows the QR traceability proof page', async () => {
@@ -56,6 +59,7 @@ describe('IZUBA MVP', () => {
 
     expect(screen.getByText('QR verified batch')).toBeInTheDocument()
     expect(screen.getByText('Farm-to-fork proof')).toBeInTheDocument()
-    expect(screen.getByText('0%')).toBeInTheDocument()
+    expect(screen.getByText('Spoilage')).toBeInTheDocument()
+    expect(screen.getByText(/verified origin/i)).toBeInTheDocument()
   })
 })

@@ -9,6 +9,9 @@ export type HarvestBatch = {
   harvestDate: string
   pricePerKg: number
   qrSlug: string
+  qualityScore: number
+  etaHours: number
+  substrateKg: number
 }
 
 export type Order = {
@@ -19,6 +22,8 @@ export type Order = {
   quantityKg: number
   status: 'Reserved' | 'Packed' | 'In transit' | 'Delivered'
   deliveryWindow: string
+  route: string
+  distanceKm: number
 }
 
 export type LedgerEntry = {
@@ -39,6 +44,24 @@ export type BiomassSale = {
   useCase: string
 }
 
+export type FarmRoom = {
+  id: string
+  farm: string
+  stage: string
+  tubes: number
+  humidity: number
+  tempC: number
+  readyInDays: number
+}
+
+export type DemandSignal = {
+  restaurant: string
+  district: string
+  forecastKg: number
+  matchRate: number
+  priority: 'High' | 'Medium' | 'Watch'
+}
+
 export const harvestBatches: HarvestBatch[] = [
   {
     id: 'HB-2401',
@@ -51,6 +74,9 @@ export const harvestBatches: HarvestBatch[] = [
     harvestDate: '2026-05-23',
     pricePerKg: 2800,
     qrSlug: 'nyamata-oyster-2401',
+    qualityScore: 97,
+    etaHours: 12,
+    substrateKg: 128,
   },
   {
     id: 'HB-2402',
@@ -63,6 +89,9 @@ export const harvestBatches: HarvestBatch[] = [
     harvestDate: '2026-05-23',
     pricePerKg: 3200,
     qrSlug: 'huye-button-2402',
+    qualityScore: 94,
+    etaHours: 16,
+    substrateKg: 92,
   },
   {
     id: 'HB-2403',
@@ -75,6 +104,9 @@ export const harvestBatches: HarvestBatch[] = [
     harvestDate: '2026-05-24',
     pricePerKg: 4500,
     qrSlug: 'musanze-shiitake-2403',
+    qualityScore: 91,
+    etaHours: 34,
+    substrateKg: 64,
   },
 ]
 
@@ -87,6 +119,8 @@ export const orders: Order[] = [
     quantityKg: 28,
     status: 'Packed',
     deliveryWindow: 'Tomorrow, 7:30 AM',
+    route: 'Bugesera -> Kigali CBD',
+    distanceKm: 42,
   },
   {
     id: 'ORD-7742',
@@ -96,6 +130,8 @@ export const orders: Order[] = [
     quantityKg: 18,
     status: 'In transit',
     deliveryWindow: 'Today, 4:15 PM',
+    route: 'Huye -> Kacyiru',
+    distanceKm: 133,
   },
   {
     id: 'ORD-7743',
@@ -105,6 +141,8 @@ export const orders: Order[] = [
     quantityKg: 14,
     status: 'Reserved',
     deliveryWindow: 'Sunday, 8:00 AM',
+    route: 'Musanze -> Nyarutarama',
+    distanceKm: 103,
   },
 ]
 
@@ -154,6 +192,67 @@ export const biomassSales: BiomassSale[] = [
   },
 ]
 
+export const farmRooms: FarmRoom[] = [
+  {
+    id: 'ROOM-A',
+    farm: 'Nyamata Women Growers',
+    stage: 'Fruiting',
+    tubes: 520,
+    humidity: 88,
+    tempC: 21,
+    readyInDays: 1,
+  },
+  {
+    id: 'ROOM-B',
+    farm: 'Huye Sunrise Cooperative',
+    stage: 'Pinning',
+    tubes: 430,
+    humidity: 84,
+    tempC: 22,
+    readyInDays: 2,
+  },
+  {
+    id: 'ROOM-C',
+    farm: 'Musanze Mycelium Hub',
+    stage: 'Incubation',
+    tubes: 470,
+    humidity: 79,
+    tempC: 20,
+    readyInDays: 5,
+  },
+]
+
+export const demandSignals: DemandSignal[] = [
+  {
+    restaurant: 'Kigali Table',
+    district: 'CBD',
+    forecastKg: 32,
+    matchRate: 96,
+    priority: 'High',
+  },
+  {
+    restaurant: 'Umami Kacyiru',
+    district: 'Kacyiru',
+    forecastKg: 24,
+    matchRate: 89,
+    priority: 'High',
+  },
+  {
+    restaurant: 'Norrsken Cafe',
+    district: 'Nyarutarama',
+    forecastKg: 18,
+    matchRate: 82,
+    priority: 'Medium',
+  },
+  {
+    restaurant: 'Kivu Grill',
+    district: 'Remera',
+    forecastKg: 14,
+    matchRate: 73,
+    priority: 'Watch',
+  },
+]
+
 export const formatRwf = (value: number) =>
   new Intl.NumberFormat('en-RW', {
     style: 'currency',
@@ -168,4 +267,8 @@ export const totals = {
   izubaRevenue: ledgerEntries.reduce((sum, entry) => sum + entry.izubaShare, 0),
   biomassRevenue: biomassSales.reduce((sum, sale) => sum + sale.amount, 0),
   spoilagePreventedKg: orders.reduce((sum, order) => sum + order.quantityKg, 0),
+  averageMatchRate: Math.round(
+    demandSignals.reduce((sum, signal) => sum + signal.matchRate, 0) / demandSignals.length,
+  ),
+  substrateRecoveredKg: biomassSales.reduce((sum, sale) => sum + sale.weightKg, 0),
 }

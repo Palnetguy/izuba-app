@@ -41,6 +41,9 @@ create table public.harvest_batches (
   reserved_kg numeric(10, 2) not null default 0,
   harvest_date date not null,
   price_per_kg integer not null,
+  quality_score integer not null default 90,
+  eta_hours integer not null default 24,
+  substrate_kg numeric(10, 2) not null default 0,
   status text not null default 'available',
   qr_slug text not null unique,
   created_at timestamptz not null default now()
@@ -52,6 +55,8 @@ create table public.orders (
   status public.order_status not null default 'reserved',
   delivery_date date not null,
   delivery_window text not null,
+  route text not null,
+  distance_km numeric(10, 2) not null default 0,
   total_kg numeric(10, 2) not null,
   total_amount integer not null,
   spoilage_prevented_kg numeric(10, 2) not null default 0,
@@ -88,6 +93,27 @@ create table public.biomass_sales (
   created_at timestamptz not null default now()
 );
 
+create table public.farm_rooms (
+  id uuid primary key default gen_random_uuid(),
+  farm_id uuid not null references public.farms(id) on delete cascade,
+  room_code text not null,
+  stage text not null,
+  tubes integer not null,
+  humidity integer not null,
+  temp_c integer not null,
+  ready_in_days integer not null,
+  created_at timestamptz not null default now()
+);
+
+create table public.demand_signals (
+  id uuid primary key default gen_random_uuid(),
+  restaurant_id uuid not null references public.restaurants(id) on delete cascade,
+  forecast_kg numeric(10, 2) not null,
+  match_rate integer not null,
+  priority text not null,
+  created_at timestamptz not null default now()
+);
+
 alter table public.profiles enable row level security;
 alter table public.farms enable row level security;
 alter table public.restaurants enable row level security;
@@ -96,6 +122,8 @@ alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.ledger_entries enable row level security;
 alter table public.biomass_sales enable row level security;
+alter table public.farm_rooms enable row level security;
+alter table public.demand_signals enable row level security;
 
 create policy "demo read profiles" on public.profiles for select using (true);
 create policy "demo read farms" on public.farms for select using (true);
@@ -105,3 +133,5 @@ create policy "demo read orders" on public.orders for select using (true);
 create policy "demo read order items" on public.order_items for select using (true);
 create policy "demo read ledger" on public.ledger_entries for select using (true);
 create policy "demo read biomass" on public.biomass_sales for select using (true);
+create policy "demo read farm rooms" on public.farm_rooms for select using (true);
+create policy "demo read demand signals" on public.demand_signals for select using (true);

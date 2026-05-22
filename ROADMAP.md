@@ -35,6 +35,14 @@
    - Verify `npm run build`.
    - Start local dev server for live review.
 
+## Current Completion Snapshot
+
+- Foundation: complete.
+- Data model: complete for MVP demo, with Supabase schema and seed files.
+- Premium UI system: complete, revised toward sharper operating-system surfaces with restrained radii.
+- Core screens: complete for Command Center, Restaurant Portal, Farmer Ledger, and QR Traceability.
+- Hardening: test suite and production build are required before every commit and push.
+
 ## Demo Story
 
 1. A harvest batch becomes available from a rural women-led farm.
