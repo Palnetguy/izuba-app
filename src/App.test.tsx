@@ -19,9 +19,22 @@ function renderApp() {
 }
 
 describe('IZUBA MVP', () => {
-  it('renders the command center operating metrics', () => {
+  it('renders the login role chooser', () => {
     renderApp()
 
+    expect(screen.getByText('IZUBA demo login')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /admin command/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /restaurant buyer/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /farmer ledger/i })).toBeInTheDocument()
+  })
+
+  it('renders the admin command center operating metrics', async () => {
+    const user = userEvent.setup()
+    renderApp()
+
+    await user.click(screen.getByRole('button', { name: /admin command/i }))
+
+    expect(screen.getByText('Admin Command Center')).toBeInTheDocument()
     expect(screen.getByText('Available harvest')).toBeInTheDocument()
     expect(screen.getByText('JIT Matching Engine')).toBeInTheDocument()
     expect(screen.getByText('Route Readiness')).toBeInTheDocument()
@@ -32,7 +45,7 @@ describe('IZUBA MVP', () => {
     const user = userEvent.setup()
     renderApp()
 
-    await user.click(screen.getByRole('button', { name: /restaurant/i }))
+    await user.click(screen.getByRole('button', { name: /restaurant buyer/i }))
     await user.click(screen.getByRole('button', { name: /reserve yield/i }))
 
     expect(screen.getByText(/reserved\. farmer fulfillment/i)).toBeInTheDocument()
@@ -55,7 +68,8 @@ describe('IZUBA MVP', () => {
     const user = userEvent.setup()
     renderApp()
 
-    await user.click(screen.getByRole('button', { name: /qr trace/i }))
+    await user.click(screen.getByRole('button', { name: /admin command/i }))
+    await user.click(screen.getByRole('button', { name: /^qr$/i }))
 
     expect(screen.getByText('QR verified batch')).toBeInTheDocument()
     expect(screen.getByText('Farm-to-fork proof')).toBeInTheDocument()

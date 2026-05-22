@@ -16,6 +16,7 @@ import {
   QrCode,
   Route,
   ShieldCheck,
+  Shuffle,
   Sprout,
   TimerReset,
   Truck,
@@ -36,17 +37,39 @@ import {
 } from './data'
 
 type View = 'command' | 'restaurant' | 'farmer' | 'trace'
+type Role = 'admin' | 'restaurant' | 'farmer'
 type Tone = 'blue' | 'green' | 'dark' | 'cream'
 
-const navItems: { id: View; label: string; icon: typeof BarChart3 }[] = [
-  { id: 'command', label: 'Command', icon: BarChart3 },
-  { id: 'restaurant', label: 'Restaurant', icon: ChefHat },
-  { id: 'farmer', label: 'Farmer ledger', icon: Sprout },
-  { id: 'trace', label: 'QR trace', icon: QrCode },
+const navItems: { id: View; label: string; icon: typeof BarChart3; roles: Role[] | 'public' }[] = [
+  { id: 'command', label: 'Admin', icon: BarChart3, roles: ['admin'] },
+  { id: 'restaurant', label: 'Restaurant', icon: ChefHat, roles: ['admin', 'restaurant'] },
+  { id: 'farmer', label: 'Farmer', icon: Sprout, roles: ['admin', 'farmer'] },
+  { id: 'trace', label: 'QR', icon: QrCode, roles: 'public' },
+]
+
+const demoAccounts: { role: Role; name: string; email: string; view: View; icon: typeof BarChart3 }[] = [
+  { role: 'admin', name: 'Admin Command', email: 'admin@izuba.rw', view: 'command', icon: BarChart3 },
+  { role: 'restaurant', name: 'Restaurant Buyer', email: 'restaurant@izuba.rw', view: 'restaurant', icon: ChefHat },
+  { role: 'farmer', name: 'Farmer Ledger', email: 'farmer@izuba.rw', view: 'farmer', icon: Sprout },
 ]
 
 function App() {
   const [activeView, setActiveView] = useState<View>('command')
+  const [activeRole, setActiveRole] = useState<Role>('admin')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const activeAccount = demoAccounts.find((account) => account.role === activeRole) ?? demoAccounts[0]
+  const visibleNavItems = navItems.filter((item) => item.roles === 'public' || item.roles.includes(activeRole))
+
+  const switchRole = (role: Role) => {
+    const account = demoAccounts.find((item) => item.role === role) ?? demoAccounts[0]
+    setActiveRole(role)
+    setActiveView(account.view)
+    setIsAuthenticated(true)
+  }
+
+  if (!isAuthenticated) {
+    return <LoginScreen onSelectRole={switchRole} />
+  }
 
   return (
     <div className="min-h-screen text-charcoal">
@@ -71,10 +94,16 @@ function App() {
                 <CompactStat label="Waste" value="0%" />
               </div>
             </div>
+
+            <div className="mt-3 border border-gray-200 bg-cream/80 p-3">
+              <p className="mono-label text-muted">Signed in as</p>
+              <p className="mt-1 font-bold">{activeAccount.name}</p>
+              <p className="text-xs font-semibold text-muted">{activeAccount.email}</p>
+            </div>
           </div>
 
           <nav className="grid w-full grid-cols-4 gap-1.5 lg:grid-cols-1">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const Icon = item.icon
               const isActive = activeView === item.id
 
@@ -105,12 +134,20 @@ function App() {
             <p className="mt-2 text-sm leading-6 text-muted">
               Seeded data keeps the full pitch flow operational before Supabase is connected live.
             </p>
+            <button
+              type="button"
+              onClick={() => setIsAuthenticated(false)}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-organic/25 bg-white/70 px-3 py-2 text-sm font-bold text-organic transition hover:bg-white"
+            >
+              <Shuffle size={15} />
+              Switch demo role
+            </button>
           </div>
         </aside>
 
         <main className="min-w-0 flex-1 pb-20 lg:pb-0">
-          <Header activeView={activeView} />
-          {activeView === 'command' && <CommandCenter />}
+          <Header activeView={activeView} activeRole={activeRole} onSwitchRole={switchRole} />
+          {activeView === 'command' && <AdminCommandCenter />}
           {activeView === 'restaurant' && <RestaurantPortal />}
           {activeView === 'farmer' && <FarmerLedger />}
           {activeView === 'trace' && <TraceabilityPage batch={harvestBatches[0]} />}
@@ -120,8 +157,70 @@ function App() {
   )
 }
 
-function Header({ activeView }: { activeView: View }) {
-  const label = navItems.find((item) => item.id === activeView)?.label ?? 'Command'
+function LoginScreen({ onSelectRole }: { onSelectRole: (role: Role) => void }) {
+  return (
+    <main className="min-h-screen px-4 py-6 text-charcoal sm:px-6 lg:px-8">
+      <section className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl items-center gap-6 lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="border-l-4 border-brand bg-white p-6 shadow-lift sm:p-8">
+          <div className="grid h-11 w-11 place-items-center rounded-md bg-charcoal text-white">
+            <Leaf size={22} />
+          </div>
+          <p className="mono-label mt-8 text-brand">IZUBA demo login</p>
+          <h1 className="mt-3 font-display text-4xl font-extrabold tracking-normal sm:text-6xl">
+            Choose the role you want to pitch.
+          </h1>
+          <p className="mt-5 max-w-xl text-lg leading-8 text-muted">
+            One build, three workspaces: admin operations, restaurant pre-orders, and farmer revenue visibility.
+          </p>
+          <div className="mt-8 grid grid-cols-3 gap-3">
+            <CompactStat label="Spoilage" value="0%" />
+            <CompactStat label="Farmer split" value="75%" />
+            <CompactStat label="Match" value={`${totals.averageMatchRate}%`} />
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          {demoAccounts.map((account) => {
+            const Icon = account.icon
+
+            return (
+              <button
+                key={account.role}
+                type="button"
+                onClick={() => onSelectRole(account.role)}
+                className="group border border-gray-200 bg-white p-4 text-left shadow-premium transition-all duration-200 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lift"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-11 w-11 place-items-center rounded-md bg-brand/10 text-brand transition group-hover:bg-brand group-hover:text-white">
+                      <Icon size={20} />
+                    </div>
+                    <div>
+                      <p className="font-display text-xl font-extrabold">{account.name}</p>
+                      <p className="text-sm font-semibold text-muted">{account.email}</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="text-gray-300 transition group-hover:text-brand" size={20} />
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+    </main>
+  )
+}
+
+function Header({
+  activeView,
+  activeRole,
+  onSwitchRole,
+}: {
+  activeView: View
+  activeRole: Role
+  onSwitchRole: (role: Role) => void
+}) {
+  const label = navItems.find((item) => item.id === activeView)?.label ?? 'Admin'
 
   return (
     <header className="glass-panel sticky top-3 z-30 mb-4 px-4 py-3">
@@ -132,7 +231,21 @@ function Header({ activeView }: { activeView: View }) {
             Rwanda's just-in-time mushroom operating system
           </h1>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex border border-gray-200 bg-white p-1">
+            {demoAccounts.map((account) => (
+              <button
+                key={account.role}
+                type="button"
+                onClick={() => onSwitchRole(account.role)}
+                className={`rounded-md px-3 py-1.5 text-xs font-extrabold transition ${
+                  activeRole === account.role ? 'bg-charcoal text-white' : 'text-muted hover:text-brand'
+                }`}
+              >
+                {account.role}
+              </button>
+            ))}
+          </div>
           <StatusPill icon={CalendarDays} label="May 22, 2026" tone="blue" />
           <StatusPill icon={ShieldCheck} label="Pitch-safe mock mode" tone="green" />
         </div>
@@ -141,9 +254,21 @@ function Header({ activeView }: { activeView: View }) {
   )
 }
 
-function CommandCenter() {
+function AdminCommandCenter() {
   return (
     <ScreenFrame>
+      <section className="grid gap-3 border border-brand/20 bg-white p-4 shadow-premium lg:grid-cols-[1fr_auto] lg:items-center">
+        <div>
+          <p className="mono-label text-brand">Admin Command Center</p>
+          <h2 className="mt-2 font-display text-2xl font-extrabold">Platform control room for demand, yield, routing, and payouts</h2>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <CompactStat label="Role" value="Admin" />
+          <CompactStat label="Markets" value="4" />
+          <CompactStat label="Routes" value="3" />
+        </div>
+      </section>
+
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard icon={Sprout} label="Available harvest" value={`${totals.availableKg} kg`} detail="3 farms online" />
         <MetricCard icon={PackageCheck} label="Reserved JIT" value={`${totals.reservedKg} kg`} detail="Demand locked pre-harvest" />
