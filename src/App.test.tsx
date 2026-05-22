@@ -35,6 +35,9 @@ describe('IZUBA MVP', () => {
     await user.click(screen.getByRole('button', { name: /admin command/i }))
 
     expect(screen.getByText('Admin Command Center')).toBeInTheDocument()
+    expect(screen.getByText('Zero-Spoilage Ledger')).toBeInTheDocument()
+    expect(screen.getByText('4-Cycle Financial Projection')).toBeInTheDocument()
+    expect(screen.getByText('Net margin')).toBeInTheDocument()
     expect(screen.getByText('Available harvest')).toBeInTheDocument()
     expect(screen.getByText('JIT Matching Engine')).toBeInTheDocument()
     expect(screen.getByText('Route Readiness')).toBeInTheDocument()

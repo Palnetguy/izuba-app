@@ -1,6 +1,18 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
+  Area,
+  AreaChart,
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+import {
   ArrowRight,
   BadgeCheck,
   Banknote,
@@ -15,6 +27,7 @@ import {
   PackageCheck,
   QrCode,
   Route,
+  Scale,
   ShieldCheck,
   Shuffle,
   Sprout,
@@ -52,6 +65,31 @@ const demoAccounts: { role: Role; name: string; email: string; view: View; icon:
   { role: 'restaurant', name: 'Restaurant Buyer', email: 'restaurant@izuba.rw', view: 'restaurant', icon: ChefHat },
   { role: 'farmer', name: 'Farmer Ledger', email: 'farmer@izuba.rw', view: 'farmer', icon: Sprout },
 ]
+
+const spoilageData = [
+  { day: 'Mon', yieldKg: 12.5, ordersKg: 12.5 },
+  { day: 'Tue', yieldKg: 15.0, ordersKg: 15.0 },
+  { day: 'Wed', yieldKg: 14.2, ordersKg: 14.2 },
+  { day: 'Thu', yieldKg: 18.5, ordersKg: 18.5 },
+  { day: 'Fri', yieldKg: 20.1, ordersKg: 20.1 },
+  { day: 'Sat', yieldKg: 22.0, ordersKg: 22.0 },
+  { day: 'Sun', yieldKg: 21.5, ordersKg: 21.5 },
+]
+
+const projectionData = [
+  { cycle: 'Cycle 1 (Months 1-3)', tubes: 1000, grossRevenue: 2050000, netProfit: 1450000 },
+  { cycle: 'Cycle 2 (Months 4-6)', tubes: 2000, grossRevenue: 4100000, netProfit: 2900000 },
+  { cycle: 'Cycle 3 (Months 7-9)', tubes: 3000, grossRevenue: 6150000, netProfit: 4350000 },
+  { cycle: 'Cycle 4 (Months 10-12)', tubes: 3000, grossRevenue: 6150000, netProfit: 4350000 },
+  { cycle: 'Year 2 Projection', tubes: 6000, grossRevenue: 12300000, netProfit: 8700000 },
+]
+
+const unitEconomics = {
+  avgKgPerTube: 0.82,
+  netMargin: 70.7,
+  farmerPayout: 0.75,
+  wasteCapture: 100,
+}
 
 function App() {
   const [activeView, setActiveView] = useState<View>('command')
@@ -276,6 +314,8 @@ function AdminCommandCenter() {
         <MetricCard icon={Factory} label="Substrate recovered" value={`${totals.substrateRecoveredKg} kg`} detail={formatRwf(totals.biomassRevenue)} />
       </section>
 
+      <AdminAnalytics />
+
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <Panel title="JIT Matching Engine" action={`${totals.averageMatchRate}% demand match`} icon={Gauge}>
           <div className="grid gap-3">
@@ -354,6 +394,132 @@ function AdminCommandCenter() {
         </Panel>
       </section>
     </ScreenFrame>
+  )
+}
+
+function AdminAnalytics() {
+  const totalProjectedProfit = projectionData.reduce((sum, item) => sum + item.netProfit, 0)
+  const yearOneProfit = projectionData.slice(0, 4).reduce((sum, item) => sum + item.netProfit, 0)
+
+  return (
+    <section className="grid gap-4 2xl:grid-cols-[1.05fr_0.95fr]">
+      <Panel title="Zero-Spoilage Ledger" action="7-day algorithm proof" icon={Scale}>
+        <div className="grid gap-4 xl:grid-cols-[1fr_220px]">
+          <div className="h-[320px] min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={spoilageData} margin={{ top: 16, right: 16, left: 0, bottom: 8 }}>
+                <defs>
+                  <linearGradient id="yieldFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#16A34A" stopOpacity={0.32} />
+                    <stop offset="95%" stopColor="#16A34A" stopOpacity={0.04} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="#E5E7EB" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 700 }} />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 700 }}
+                  tickFormatter={(value) => `${value}kg`}
+                />
+                <Tooltip content={<ChartTooltip formatter={(value) => `${Number(value).toFixed(1)} kg`} />} />
+                <Area
+                  type="monotone"
+                  dataKey="yieldKg"
+                  name="Harvest Yield"
+                  stroke="#16A34A"
+                  strokeWidth={2}
+                  fill="url(#yieldFill)"
+                  animationDuration={900}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="ordersKg"
+                  name="B2B Pre-Orders"
+                  stroke="#005B9F"
+                  strokeWidth={4}
+                  fill="transparent"
+                  animationDuration={1100}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="grid content-start gap-3">
+            <InsightBlock label="Waste variance" value="0.0 kg" detail="Yield and orders match every day." tone="green" />
+            <InsightBlock label="Fulfillment lock" value="100%" detail="Every harvested kilogram has a buyer." tone="blue" />
+            <InsightBlock label="Algorithm signal" value="Synced" detail="No unsold inventory exposure this week." tone="dark" />
+          </div>
+        </div>
+      </Panel>
+
+      <Panel title="4-Cycle Financial Projection" action="Optimal efficiency model" icon={BarChart3}>
+        <div className="grid gap-4 xl:grid-cols-[1fr_220px]">
+          <div className="h-[320px] min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={projectionData} margin={{ top: 16, right: 4, left: 0, bottom: 8 }}>
+                <CartesianGrid stroke="#E5E7EB" strokeDasharray="3 3" vertical={false} />
+                <XAxis
+                  dataKey="cycle"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: '#6B7280', fontSize: 11, fontWeight: 700 }}
+                  interval={0}
+                  tickFormatter={(value) => String(value).replace(' (Months ', '\nM').replace(')', '')}
+                />
+                <YAxis
+                  yAxisId="tubes"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 700 }}
+                  tickFormatter={(value) => `${Number(value) / 1000}k`}
+                />
+                <YAxis
+                  yAxisId="profit"
+                  orientation="right"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: '#005B9F', fontSize: 12, fontWeight: 800 }}
+                  tickFormatter={(value) => `${Number(value) / 1000000}M`}
+                />
+                <Tooltip content={<ChartTooltip formatter={(value, name) => name === 'Tubes' ? `${value} tubes` : formatRwf(Number(value))} />} />
+                <Bar
+                  yAxisId="tubes"
+                  dataKey="tubes"
+                  name="Tubes"
+                  fill="#D0E4FF"
+                  stroke="#A8CEFF"
+                  radius={[4, 4, 0, 0]}
+                  animationDuration={900}
+                />
+                <Line
+                  yAxisId="profit"
+                  type="monotone"
+                  dataKey="netProfit"
+                  name="Net Profit"
+                  stroke="#005B9F"
+                  strokeWidth={4}
+                  dot={{ r: 4, fill: '#005B9F', stroke: '#FFFFFF', strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: '#16A34A', stroke: '#FFFFFF', strokeWidth: 2 }}
+                  animationDuration={1200}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="grid content-start gap-3">
+            <InsightBlock label="Year-one net" value={formatRwf(yearOneProfit)} detail="Cycles 1-4 at efficiency cap." tone="blue" />
+            <InsightBlock label="Year-two net" value={formatRwf(projectionData[4].netProfit)} detail="Scaling to 2 farmer operators." tone="green" />
+            <InsightBlock label="Modeled net" value={formatRwf(totalProjectedProfit)} detail="Includes year-two projection." tone="dark" />
+          </div>
+        </div>
+      </Panel>
+
+      <div className="grid gap-3 md:grid-cols-4 2xl:col-span-2">
+        <UnitEconomicsTile label="Kg / tube" value={unitEconomics.avgKgPerTube.toFixed(2)} detail="Conservative production assumption" />
+        <UnitEconomicsTile label="Net margin" value={`${unitEconomics.netMargin}%`} detail="After direct production costs" />
+        <UnitEconomicsTile label="Farmer payout" value={`${unitEconomics.farmerPayout * 100}%`} detail="Profit-share to rural women" />
+        <UnitEconomicsTile label="Waste capture" value={`${unitEconomics.wasteCapture}%`} detail="Food + biomass monetized" />
+      </div>
+    </section>
   )
 }
 
@@ -655,6 +821,78 @@ function MetricCard({
       <p className="mt-1 text-3xl font-extrabold">{value}</p>
       <p className="mt-2 text-sm text-muted">{detail}</p>
     </motion.div>
+  )
+}
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+  formatter,
+}: {
+  active?: boolean
+  payload?: Array<{ name: string; value: number; color?: string }>
+  label?: string
+  formatter: (value: number, name: string) => string
+}) {
+  if (!active || !payload?.length) {
+    return null
+  }
+
+  return (
+    <div className="border border-gray-200 bg-white/95 p-3 shadow-lift backdrop-blur-md">
+      <p className="mono-label text-brand">{label}</p>
+      <div className="mt-2 grid gap-1.5">
+        {payload.map((item) => (
+          <div key={item.name} className="flex items-center justify-between gap-8 text-sm">
+            <span className="flex items-center gap-2 font-semibold text-muted">
+              <span className="h-2 w-2" style={{ backgroundColor: item.color ?? '#005B9F' }} />
+              {item.name}
+            </span>
+            <span className="font-extrabold text-charcoal">{formatter(item.value, item.name)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function InsightBlock({
+  label,
+  value,
+  detail,
+  tone,
+}: {
+  label: string
+  value: string
+  detail: string
+  tone: Tone
+}) {
+  const toneClass =
+    tone === 'green'
+      ? 'border-organic/25 bg-organic/10 text-organic'
+      : tone === 'blue'
+        ? 'border-brand/25 bg-brand/10 text-brand'
+        : 'border-charcoal/15 bg-charcoal text-white'
+
+  return (
+    <div className={`border p-3 ${toneClass}`}>
+      <p className="text-xs font-bold uppercase tracking-[0.12em] opacity-70">{label}</p>
+      <p className="mt-2 text-2xl font-extrabold">{value}</p>
+      <p className={tone === 'dark' ? 'mt-2 text-sm leading-5 text-white/65' : 'mt-2 text-sm leading-5 text-muted'}>
+        {detail}
+      </p>
+    </div>
+  )
+}
+
+function UnitEconomicsTile({ label, value, detail }: { label: string; value: string; detail: string }) {
+  return (
+    <div className="border border-gray-200 bg-white p-4 shadow-premium">
+      <p className="mono-label text-muted">{label}</p>
+      <p className="mt-2 text-3xl font-extrabold text-brand">{value}</p>
+      <p className="mt-2 text-sm leading-5 text-muted">{detail}</p>
+    </div>
   )
 }
 
