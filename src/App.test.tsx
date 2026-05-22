@@ -6,6 +6,7 @@ import App from './App'
 
 afterEach(() => {
   cleanup()
+  window.history.pushState({}, '', '/')
 })
 
 function renderApp() {
@@ -51,8 +52,17 @@ describe('IZUBA MVP', () => {
     await user.click(screen.getByRole('button', { name: /restaurant buyer/i }))
     await user.click(screen.getByRole('button', { name: /reserve yield/i }))
 
-    expect(screen.getByText(/reserved\. farmer fulfillment/i)).toBeInTheDocument()
+    expect(screen.getByText(/demo fallback active|supabase synced/i)).toBeInTheDocument()
     expect(screen.getByText('Buyer Delivery Timeline')).toBeInTheDocument()
+  })
+
+  it('opens role workspaces from direct URLs', () => {
+    window.history.pushState({}, '', '/farmer')
+    renderApp()
+
+    expect(screen.getByText('Signed in as')).toBeInTheDocument()
+    expect(screen.getByText('Farmer Ledger')).toBeInTheDocument()
+    expect(screen.getByText('Revenue Ledger')).toBeInTheDocument()
   })
 
   it('shows farmer revenue and biomass monetization screens', async () => {

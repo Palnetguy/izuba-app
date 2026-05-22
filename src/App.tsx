@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   Area,
@@ -48,10 +48,16 @@ import {
   totals,
   type HarvestBatch,
 } from './data'
+import { reserveYield } from './lib/reservations'
 
 type View = 'command' | 'restaurant' | 'farmer' | 'trace'
 type Role = 'admin' | 'restaurant' | 'farmer'
 type Tone = 'blue' | 'green' | 'dark' | 'cream'
+type ReservationState = {
+  confirmedKg: number
+  orderId: string
+  syncMode: 'supabase' | 'demo'
+}
 
 const navItems: { id: View; label: string; icon: typeof BarChart3; roles: Role[] | 'public' }[] = [
   { id: 'command', label: 'Admin', icon: BarChart3, roles: ['admin'] },
@@ -65,6 +71,29 @@ const demoAccounts: { role: Role; name: string; email: string; view: View; icon:
   { role: 'restaurant', name: 'Restaurant Buyer', email: 'restaurant@izuba.rw', view: 'restaurant', icon: ChefHat },
   { role: 'farmer', name: 'Farmer Ledger', email: 'farmer@izuba.rw', view: 'farmer', icon: Sprout },
 ]
+
+const viewPath: Record<View, string> = {
+  command: '/admin',
+  restaurant: '/restaurant',
+  farmer: '/farmer',
+  trace: '/trace/nyamata-oyster-2401',
+}
+
+const pathView: Record<string, { view: View; role: Role; authenticated: boolean }> = {
+  '/admin': { view: 'command', role: 'admin', authenticated: true },
+  '/restaurant': { view: 'restaurant', role: 'restaurant', authenticated: true },
+  '/farmer': { view: 'farmer', role: 'farmer', authenticated: true },
+}
+
+function getInitialSession() {
+  const path = typeof window === 'undefined' ? '/' : window.location.pathname
+
+  if (path.startsWith('/trace')) {
+    return { view: 'trace' as View, role: 'admin' as Role, authenticated: true }
+  }
+
+  return pathView[path] ?? { view: 'command' as View, role: 'admin' as Role, authenticated: false }
+}
 
 const spoilageData = [
   { day: 'Mon', yieldKg: 12.5, ordersKg: 12.5 },
@@ -92,17 +121,36 @@ const unitEconomics = {
 }
 
 function App() {
-  const [activeView, setActiveView] = useState<View>('command')
-  const [activeRole, setActiveRole] = useState<Role>('admin')
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const initialSession = getInitialSession()
+  const [activeView, setActiveView] = useState<View>(initialSession.view)
+  const [activeRole, setActiveRole] = useState<Role>(initialSession.role)
+  const [isAuthenticated, setIsAuthenticated] = useState(initialSession.authenticated)
   const activeAccount = demoAccounts.find((account) => account.role === activeRole) ?? demoAccounts[0]
   const visibleNavItems = navItems.filter((item) => item.roles === 'public' || item.roles.includes(activeRole))
+
+  useEffect(() => {
+    const onPopState = () => {
+      const nextSession = getInitialSession()
+      setActiveRole(nextSession.role)
+      setActiveView(nextSession.view)
+      setIsAuthenticated(nextSession.authenticated)
+    }
+
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  const navigateToView = (view: View) => {
+    setActiveView(view)
+    window.history.pushState({}, '', viewPath[view])
+  }
 
   const switchRole = (role: Role) => {
     const account = demoAccounts.find((item) => item.role === role) ?? demoAccounts[0]
     setActiveRole(role)
     setActiveView(account.view)
     setIsAuthenticated(true)
+    window.history.pushState({}, '', viewPath[account.view])
   }
 
   if (!isAuthenticated) {
@@ -149,7 +197,7 @@ function App() {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setActiveView(item.id)}
+                  onClick={() => navigateToView(item.id)}
                   className={`flex h-11 items-center justify-center gap-3 rounded-md px-3 text-sm font-bold transition-all duration-200 lg:justify-start ${
                     isActive
                       ? 'bg-brand text-white shadow-lift'
@@ -174,7 +222,10 @@ function App() {
             </p>
             <button
               type="button"
-              onClick={() => setIsAuthenticated(false)}
+              onClick={() => {
+                setIsAuthenticated(false)
+                window.history.pushState({}, '', '/')
+              }}
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-organic/25 bg-white/70 px-3 py-2 text-sm font-bold text-organic transition hover:bg-white"
             >
               <Shuffle size={15} />
@@ -464,7 +515,9 @@ function AdminAnalytics() {
                   axisLine={false}
                   tick={{ fill: '#6B7280', fontSize: 11, fontWeight: 700 }}
                   interval={0}
-                  tickFormatter={(value) => String(value).replace(' (Months ', '\nM').replace(')', '')}
+                  tickFormatter={(value) =>
+                    String(value).startsWith('Year') ? 'Year 2' : String(value).replace(' (Months 1-3)', '').replace(' (Months 4-6)', '').replace(' (Months 7-9)', '').replace(' (Months 10-12)', '')
+                  }
                 />
                 <YAxis
                   yAxisId="tubes"
@@ -526,11 +579,24 @@ function AdminAnalytics() {
 function RestaurantPortal() {
   const [selectedId, setSelectedId] = useState(harvestBatches[0].id)
   const [kg, setKg] = useState(16)
-  const [confirmedKg, setConfirmedKg] = useState(0)
+  const [reservation, setReservation] = useState<ReservationState | null>(null)
+  const [isReserving, setIsReserving] = useState(false)
   const selected = harvestBatches.find((batch) => batch.id === selectedId) ?? harvestBatches[0]
+  const confirmedKg = reservation?.confirmedKg ?? 0
   const unreserved = Math.max(0, selected.availableKg - selected.reservedKg - confirmedKg)
   const effectiveKg = Math.min(kg, Math.max(1, unreserved))
   const total = effectiveKg * selected.pricePerKg
+
+  const handleReservation = async () => {
+    setIsReserving(true)
+    const result = await reserveYield(selected, effectiveKg)
+    setReservation({
+      confirmedKg: confirmedKg + effectiveKg,
+      orderId: result.orderId,
+      syncMode: result.syncMode,
+    })
+    setIsReserving(false)
+  }
 
   return (
     <ScreenFrame>
@@ -547,7 +613,7 @@ function RestaurantPortal() {
                   type="button"
                   onClick={() => {
                     setSelectedId(batch.id)
-                    setConfirmedKg(0)
+                    setReservation(null)
                   }}
                   className={`border p-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift ${
                     isSelected ? 'border-brand bg-brand text-white' : 'border-gray-200 bg-cream/70'
@@ -605,16 +671,18 @@ function RestaurantPortal() {
             </div>
             <button
               type="button"
-              onClick={() => setConfirmedKg((current) => current + effectiveKg)}
-              disabled={unreserved <= 0}
+              onClick={handleReservation}
+              disabled={unreserved <= 0 || isReserving}
               className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-md bg-brand font-bold text-white shadow-lift transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
             >
-              Reserve yield
+              {isReserving ? 'Reserving yield...' : 'Reserve yield'}
               <ArrowRight size={18} />
             </button>
-            {confirmedKg > 0 && (
+            {reservation && (
               <div className="mt-4 border border-organic/20 bg-organic/10 p-3 text-sm font-semibold text-organic">
-                {confirmedKg} kg reserved. Farmer fulfillment, route planning, and ledger split are staged.
+                {reservation.confirmedKg} kg reserved under {reservation.orderId}.{' '}
+                {reservation.syncMode === 'supabase' ? 'Supabase synced.' : 'Demo fallback active.'} Farmer fulfillment,
+                route planning, and ledger split are staged.
               </div>
             )}
           </div>
