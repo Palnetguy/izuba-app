@@ -88,12 +88,23 @@ describe('IZUBA MVP', () => {
     await user.click(screen.getByRole('button', { name: /admin command/i }))
     await user.click(screen.getByRole('button', { name: /^qr$/i }))
 
-    expect(screen.getByText('QR verified batch')).toBeInTheDocument()
+    expect(screen.getByText('Scan verified product')).toBeInTheDocument()
     expect(screen.getByText('Farm-to-fork proof')).toBeInTheDocument()
-    expect(screen.getByText('Preparation Guide')).toBeInTheDocument()
+    expect(screen.getByText('Public QR page')).toBeInTheDocument()
     expect(screen.getByText('Watch how to prepare this batch')).toBeInTheDocument()
     expect(screen.getByText('Product Information')).toBeInTheDocument()
     expect(screen.getByText('Spoilage')).toBeInTheDocument()
-    expect(screen.getByText(/verified origin/i)).toBeInTheDocument()
+    expect(screen.getByText(/proves origin/i)).toBeInTheDocument()
+    expect(screen.queryByText('Signed in as')).not.toBeInTheDocument()
+  })
+
+  it('opens the QR scan route as a public page without dashboard access', () => {
+    window.history.pushState({}, '', '/trace/nyamata-oyster-2401')
+    renderApp()
+
+    expect(screen.getByText('Public QR page')).toBeInTheDocument()
+    expect(screen.getByText('Watch how to prepare this batch')).toBeInTheDocument()
+    expect(screen.queryByText('Admin Command')).not.toBeInTheDocument()
+    expect(screen.queryByText('Switch demo role')).not.toBeInTheDocument()
   })
 })

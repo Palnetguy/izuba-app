@@ -159,6 +159,10 @@ function App() {
     return <LoginScreen onSelectRole={switchRole} />
   }
 
+  if (activeView === 'trace') {
+    return <PublicTraceabilityPage batch={harvestBatches[0]} />
+  }
+
   return (
     <div className="min-h-screen text-charcoal">
       <div className="mx-auto flex w-full max-w-[1440px] gap-4 px-3 py-3 sm:px-5 lg:px-6">
@@ -174,7 +178,7 @@ function App() {
               </div>
             </div>
 
-            <div className="mt-4 border-l-4 border-brand bg-white p-4 shadow-premium">
+            <div className="mt-4 bg-charcoal p-4 text-white shadow-premium">
               <p className="mono-label text-brand">Finals demo</p>
               <p className="mt-2 text-xl font-extrabold leading-tight">Zero-spoilage JIT marketplace</p>
               <div className="mt-4 grid grid-cols-2 gap-2">
@@ -241,7 +245,6 @@ function App() {
           {activeView === 'command' && <AdminCommandCenter />}
           {activeView === 'restaurant' && <RestaurantPortal />}
           {activeView === 'farmer' && <FarmerLedger />}
-          {activeView === 'trace' && <TraceabilityPage batch={harvestBatches[0]} />}
         </main>
       </div>
     </div>
@@ -252,7 +255,9 @@ function LoginScreen({ onSelectRole }: { onSelectRole: (role: Role) => void }) {
   return (
     <main className="min-h-screen px-4 py-6 text-charcoal sm:px-6 lg:px-8">
       <section className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl items-center gap-6 lg:grid-cols-[0.92fr_1.08fr]">
-        <div className="border-l-4 border-brand bg-white p-6 shadow-lift sm:p-8">
+        <div className="relative overflow-hidden bg-white p-6 shadow-lift sm:p-8">
+          <div className="absolute right-0 top-0 h-2 w-40 bg-brand" />
+          <div className="absolute right-0 top-2 h-2 w-28 bg-organic" />
           <div className="grid h-11 w-11 place-items-center rounded-md bg-charcoal text-white">
             <Leaf size={22} />
           </div>
@@ -782,94 +787,101 @@ function FarmerLedger() {
   )
 }
 
-function TraceabilityPage({ batch }: { batch: HarvestBatch }) {
+function PublicTraceabilityPage({ batch }: { batch: HarvestBatch }) {
   return (
-    <ScreenFrame>
-      <section className="overflow-hidden bg-charcoal text-white shadow-lift">
-        <div className="grid min-h-[560px] lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="flex flex-col justify-between p-6 sm:p-8">
+    <main className="min-h-screen text-charcoal">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-md bg-charcoal text-white">
+            <Leaf size={20} />
+          </div>
+          <div>
+            <p className="font-display text-lg font-extrabold">IZUBA Mushrooms</p>
+            <p className="text-xs font-bold text-muted">Verified farm-to-fork batch</p>
+          </div>
+        </div>
+        <StatusPill icon={QrCode} label="Public QR page" tone="blue" />
+      </header>
+
+      <section className="mx-auto grid max-w-7xl gap-4 px-4 pb-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+        <div className="relative overflow-hidden bg-charcoal p-5 text-white shadow-lift sm:p-7">
+          <div className="absolute right-0 top-0 h-24 w-24 bg-brand/35" />
+          <div className="absolute bottom-0 left-0 h-20 w-32 bg-organic/25" />
+          <div className="relative z-10 grid min-h-[520px] content-between gap-8">
             <div>
-              <StatusPill icon={QrCode} label="QR verified batch" tone="dark" />
-              <h2 className="mt-6 font-display text-4xl font-extrabold sm:text-6xl">{batch.type}</h2>
-              <p className="mt-4 max-w-xl text-lg leading-8 text-white/70">
-                Harvested by {batch.farmer} at {batch.farm}. Reserved before harvest and routed directly to Kigali restaurants.
+              <p className="mono-label text-white/60">Scan verified product</p>
+              <h1 className="mt-4 font-display text-5xl font-extrabold tracking-normal sm:text-7xl">{batch.type}</h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-white/72">
+                Harvested by {batch.farmer} at {batch.farm} in {batch.district}. This page proves origin,
+                freshness, zero-spoilage handling, and how to prepare the mushrooms at home.
               </p>
             </div>
-            <div className="mt-10 grid grid-cols-3 gap-3">
+            <MushroomJoyIllustration />
+            <div className="grid grid-cols-3 gap-3">
               <SplitTile label="Origin" value={batch.district} dark />
               <SplitTile label="Reserved" value={`${batch.reservedKg} kg`} dark />
               <SplitTile label="Spoilage" value="0%" dark />
             </div>
           </div>
-          <div className="relative min-h-[460px] bg-[linear-gradient(135deg,rgba(22,163,74,0.28),rgba(0,91,159,0.48)),url('https://images.unsplash.com/photo-1504545102780-26774c1bb073?auto=format&fit=crop&w=1400&q=80')] bg-cover bg-center">
-            <div className="absolute right-5 top-5 grid h-28 w-28 grid-cols-5 gap-1 bg-white p-3 shadow-lift">
-              {Array.from({ length: 25 }).map((_, index) => (
-                <span
-                  key={index}
-                  className={index % 2 === 0 || [6, 8, 16, 18].includes(index) ? 'bg-charcoal' : 'bg-white'}
-                />
-              ))}
-            </div>
-            <div className="absolute bottom-5 left-5 right-5 bg-white/88 p-5 text-charcoal backdrop-blur-md">
-              <p className="text-sm font-bold text-brand">Farm-to-fork proof</p>
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Batch {batch.id} shows verified origin, live reservation volume, farmer payout logic, and biomass recovery.
-              </p>
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                <CompactStat label="Quality" value={`${batch.qualityScore}%`} />
-                <CompactStat label="ETA" value={`${batch.etaHours}h`} />
-                <CompactStat label="Substrate" value={`${batch.substrateKg}kg`} />
+        </div>
+
+        <div className="grid gap-4">
+          <div className="border border-gray-200 bg-white p-3 shadow-lift">
+            <div className="relative overflow-hidden bg-charcoal text-white">
+              <video
+                className="aspect-video w-full bg-charcoal object-cover"
+                src={farmToForkVideo}
+                controls
+                playsInline
+                preload="metadata"
+                poster="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80"
+              >
+                <track kind="captions" label="English" />
+              </video>
+              <div className="pointer-events-none absolute left-3 top-3 border border-white/20 bg-charcoal/75 px-3 py-2 backdrop-blur-md">
+                <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-white/70">Farm to fork</p>
               </div>
             </div>
+            <div className="grid gap-3 bg-cream/70 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+              <div>
+                <p className="font-display text-2xl font-extrabold">Watch how to prepare this batch</p>
+                <p className="mt-1 text-sm leading-6 text-muted">
+                  A short guide for cleaning, cooking, and serving fresh IZUBA mushrooms.
+                </p>
+              </div>
+              <StatusPill icon={Play} label="20-30 sec guide" tone="blue" />
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <CompactStat label="Quality" value={`${batch.qualityScore}%`} />
+            <CompactStat label="Harvest ETA" value={`${batch.etaHours}h`} />
+            <CompactStat label="Recovered substrate" value={`${batch.substrateKg}kg`} />
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-        <Panel title="Preparation Guide" action="Scan-to-cook customer content" icon={Play}>
-          <div className="grid gap-4 md:grid-cols-[1fr_0.82fr]">
-            <div className="border border-gray-200 bg-white p-2 shadow-lift">
-              <div className="relative overflow-hidden bg-charcoal text-white">
-                <video
-                  className="aspect-video w-full bg-charcoal object-cover"
-                  src={farmToForkVideo}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  poster="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80"
-                >
-                  <track kind="captions" label="English" />
-                </video>
-                <div className="pointer-events-none absolute left-3 top-3 border border-white/20 bg-charcoal/75 px-3 py-2 backdrop-blur-md">
-                  <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-white/70">Farm to fork</p>
-                </div>
-              </div>
-              <div className="grid gap-3 border-t border-gray-100 bg-cream/70 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
-                <div>
-                  <p className="font-display text-xl font-extrabold">Watch how to prepare this batch</p>
-                  <p className="mt-1 text-sm leading-6 text-muted">
-                    A short customer-facing video that turns a QR scan into confidence, appetite, and brand trust.
-                  </p>
-                </div>
-                <StatusPill icon={Play} label="20-30 sec guide" tone="blue" />
-              </div>
-            </div>
-            <div className="grid content-start gap-3">
-              <InsightBlock label="Customer scan" value="QR opens this page" detail="No app install needed. The browser shows origin, freshness, and cooking guidance." tone="blue" />
-              <InsightBlock label="Recommended format" value="60-90 sec" detail="Short vertical video: clean, slice, saute, plate, and storage tip." tone="green" />
-              <InsightBlock label="Trust layer" value="Verified batch" detail="The same page proves farmer, route, reserved kilograms, and zero-spoilage handling." tone="dark" />
-            </div>
+      <section className="mx-auto grid max-w-7xl gap-4 px-4 pb-8 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:px-8">
+        <Panel title="Farm-to-fork proof" action={`Batch ${batch.id}`} icon={ShieldCheck}>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <InfoRow label="Farmer" value={batch.farmer} />
+            <InfoRow label="Farm" value={batch.farm} />
+            <InfoRow label="Crop" value={batch.type} />
+          </div>
+          <div className="mt-4 grid gap-3">
+            <InsightBlock label="Customer scan" value="QR opens this page" detail="No app install needed. The browser shows origin, freshness, and preparation guidance." tone="blue" />
+            <InsightBlock label="Trust layer" value="Verified batch" detail="The same page proves farmer, route, reserved kilograms, and zero-spoilage handling." tone="dark" />
           </div>
         </Panel>
 
-        <Panel title="Product Information" action="What the customer learns" icon={Leaf}>
+        <Panel title="Product Information" action="Storage, cooking, and impact" icon={Leaf}>
           <div className="grid gap-3 sm:grid-cols-2">
             <InfoRow label="Storage" value="Keep refrigerated. Use within 3 days for best texture." />
             <InfoRow label="Prep" value="Wipe clean, trim stems, avoid soaking before cooking." />
             <InfoRow label="Cooking" value="High heat saute for 5-7 minutes until edges caramelize." />
             <InfoRow label="Impact" value="Pre-ordered batch, farmer payout tracked, substrate recovered." />
           </div>
-          <div className="mt-4 border-l-4 border-organic bg-organic/10 p-4">
+          <div className="mt-4 bg-organic/10 p-4">
             <p className="font-display text-xl font-extrabold text-charcoal">Chef's 7-minute method</p>
             <p className="mt-2 text-sm leading-6 text-muted">
               Hot pan, small oil, do not crowd the mushrooms. Finish with salt, garlic, and a squeeze of lemon.
@@ -877,7 +889,34 @@ function TraceabilityPage({ batch }: { batch: HarvestBatch }) {
           </div>
         </Panel>
       </section>
-    </ScreenFrame>
+    </main>
+  )
+}
+
+function MushroomJoyIllustration() {
+  return (
+    <div className="relative mx-auto h-56 w-full max-w-lg">
+      <svg viewBox="0 0 520 240" role="img" aria-label="Joyful mushroom harvest illustration" className="h-full w-full">
+        <rect x="30" y="160" width="460" height="32" fill="#FCFBF8" opacity="0.14" />
+        <circle cx="400" cy="74" r="34" fill="#16A34A" opacity="0.9" />
+        <path d="M110 164c22-54 78-54 100 0H110Z" fill="#FCFBF8" />
+        <path d="M128 166h64v44h-64z" fill="#E6F3FF" />
+        <path d="M286 156c28-70 100-70 128 0H286Z" fill="#D0E4FF" />
+        <path d="M314 158h72v52h-72z" fill="#FCFBF8" />
+        <path d="M228 92c-28 22-58 30-92 22" stroke="#FCFBF8" strokeWidth="18" strokeLinecap="round" />
+        <path d="M298 93c28 22 58 30 92 22" stroke="#FCFBF8" strokeWidth="18" strokeLinecap="round" />
+        <circle cx="264" cy="54" r="27" fill="#FCFBF8" />
+        <path d="M226 92h78l18 86H208l18-86Z" fill="#005B9F" />
+        <path d="M218 178c-20 18-42 28-70 29" stroke="#FCFBF8" strokeWidth="18" strokeLinecap="round" />
+        <path d="M310 178c20 18 42 28 70 29" stroke="#FCFBF8" strokeWidth="18" strokeLinecap="round" />
+        <path d="M238 36c18-25 46-24 66-2-8 15-47 18-66 2Z" fill="#16A34A" />
+        <path d="M78 126c19-12 41-9 55 9" stroke="#16A34A" strokeWidth="12" strokeLinecap="round" />
+        <path d="M420 126c19-12 41-9 55 9" stroke="#16A34A" strokeWidth="12" strokeLinecap="round" />
+        <circle cx="248" cy="55" r="4" fill="#2D2D2D" />
+        <circle cx="278" cy="55" r="4" fill="#2D2D2D" />
+        <path d="M250 72c10 8 22 8 32 0" stroke="#2D2D2D" strokeWidth="5" strokeLinecap="round" />
+      </svg>
+    </div>
   )
 }
 
