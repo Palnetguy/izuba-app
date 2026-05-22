@@ -55,6 +55,7 @@ import farmToForkVideo from './assets/FARM_TO_FORK.mp4'
 type View = 'command' | 'restaurant' | 'farmer' | 'trace'
 type Role = 'admin' | 'restaurant' | 'farmer'
 type Tone = 'blue' | 'green' | 'dark' | 'cream'
+type PublicLanguage = 'en' | 'rw'
 type ReservationState = {
   confirmedKg: number
   orderId: string
@@ -120,6 +121,57 @@ const unitEconomics = {
   netMargin: 70.7,
   farmerPayout: 0.75,
   wasteCapture: 100,
+}
+
+const publicCopy = {
+  en: {
+    languageLabel: 'Language',
+    publicBadge: 'Public QR page',
+    eyebrow: 'Scan verified product',
+    subtitle: (batch: HarvestBatch) =>
+      `Harvested by ${batch.farmer} at ${batch.farm} in ${batch.district}. This page proves origin, freshness, zero-spoilage handling, and how to prepare the mushrooms at home.`,
+    videoTitle: 'Watch how to prepare this batch',
+    videoText: 'A short guide for cleaning, cooking, and serving fresh IZUBA mushrooms.',
+    proofTitle: 'Farm-to-fork proof',
+    proofAction: (batch: HarvestBatch) => `Batch ${batch.id}`,
+    customerScan: 'QR opens this page',
+    customerScanDetail: 'No app install needed. The browser shows origin, freshness, and preparation guidance.',
+    trustLayer: 'Verified batch',
+    trustLayerDetail: 'The same page proves farmer, route, reserved kilograms, and zero-spoilage handling.',
+    productTitle: 'Product Information',
+    productAction: 'Storage, cooking, and impact',
+    storage: 'Keep refrigerated. Use within 3 days for best texture.',
+    prep: 'Wipe clean, trim stems, avoid soaking before cooking.',
+    cooking: 'High heat saute for 5-7 minutes until edges caramelize.',
+    impact: 'Pre-ordered batch, farmer payout tracked, substrate recovered.',
+    methodTitle: "Chef's 7-minute method",
+    method:
+      'Hot pan, small oil, do not crowd the mushrooms. Finish with salt, garlic, and a squeeze of lemon.',
+  },
+  rw: {
+    languageLabel: 'Ururimi',
+    publicBadge: 'Paji ya QR rusange',
+    eyebrow: 'Igicuruzwa cyagenzuwe',
+    subtitle: (batch: HarvestBatch) =>
+      `Byasaruwe na ${batch.farmer} muri ${batch.farm}, ${batch.district}. Iyi paji igaragaza aho byaturutse, uko bikiri bishya, uburyo twirinze gupfusha umusaruro, n'uko wabitegura mu rugo.`,
+    videoTitle: 'Reba uko wategura uyu musaruro',
+    videoText: 'Video ngufi ikwereka uko woza, uteka, kandi ushyira ku meza ibihumyo bya IZUBA.',
+    proofTitle: 'Icyemezo kuva mu murima kugera ku meza',
+    proofAction: (batch: HarvestBatch) => `Icyiciro ${batch.id}`,
+    customerScan: 'QR ifungura iyi paji',
+    customerScanDetail: `Nta app usabwa gushyiramo. Browser ikwereka aho byaturutse, uko bikiri bishya, n'uko wabitegura.`,
+    trustLayer: 'Umusaruro wagenzuwe',
+    trustLayerDetail: `Iyi paji igaragaza umuhinzi, inzira yanyuzemo, ibiro byatumijwe, n'uko nta musaruro wapfuye.`,
+    productTitle: "Amakuru y'Igicuruzwa",
+    productAction: 'Kubika, guteka, n’ingaruka nziza',
+    storage: 'Bika muri firigo. Bikoreshe mu minsi 3 kugira ngo bigumane uburyohe.',
+    prep: 'Bihanagure neza, ukate imitwe ikomeye, wirinde kubishyira mu mazi menshi mbere yo kubiteka.',
+    cooking: 'Bitekere ku muriro mwinshi iminota 5-7 kugeza bitangiye gufata ibara ryiza.',
+    impact: 'Byatumijwe mbere yo gusarurwa, inyungu y’umuhinzi irakurikiranywa, n’ibisigazwa bikabyazwa agaciro.',
+    methodTitle: "Uburyo bw'iminota 7",
+    method:
+      'Shyushya ipanu, shyiramo amavuta make, ntubyuzuze cyane. Usoze ushyiramo umunyu, tungurusumu, n’umutobe w’indimu.',
+  },
 }
 
 function App() {
@@ -788,9 +840,12 @@ function FarmerLedger() {
 }
 
 function PublicTraceabilityPage({ batch }: { batch: HarvestBatch }) {
+  const [language, setLanguage] = useState<PublicLanguage>('en')
+  const copy = publicCopy[language]
+
   return (
     <main className="min-h-screen text-charcoal">
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <header className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-md bg-charcoal text-white">
             <Leaf size={20} />
@@ -800,7 +855,32 @@ function PublicTraceabilityPage({ batch }: { batch: HarvestBatch }) {
             <p className="text-xs font-bold text-muted">Verified farm-to-fork batch</p>
           </div>
         </div>
-        <StatusPill icon={QrCode} label="Public QR page" tone="blue" />
+        <div className="flex w-full flex-wrap items-center justify-between gap-2 md:w-auto md:justify-end">
+          <StatusPill icon={QrCode} label={copy.publicBadge} tone="blue" />
+          <div className="flex items-center gap-2 border border-gray-200 bg-white p-1">
+            <span className="hidden px-2 text-xs font-extrabold uppercase tracking-[0.12em] text-muted sm:inline">
+              {copy.languageLabel}
+            </span>
+            <button
+              type="button"
+              onClick={() => setLanguage('en')}
+              className={`rounded-md px-3 py-1.5 text-xs font-extrabold transition ${
+                language === 'en' ? 'bg-charcoal text-white' : 'text-muted hover:text-brand'
+              }`}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage('rw')}
+              className={`rounded-md px-3 py-1.5 text-xs font-extrabold transition ${
+                language === 'rw' ? 'bg-charcoal text-white' : 'text-muted hover:text-brand'
+              }`}
+            >
+              RW
+            </button>
+          </div>
+        </div>
       </header>
 
       <section className="mx-auto grid max-w-7xl gap-4 px-4 pb-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
@@ -809,11 +889,10 @@ function PublicTraceabilityPage({ batch }: { batch: HarvestBatch }) {
           <div className="absolute bottom-0 left-0 h-20 w-32 bg-organic/25" />
           <div className="relative z-10 grid min-h-[520px] content-between gap-8">
             <div>
-              <p className="mono-label text-white/60">Scan verified product</p>
+              <p className="mono-label text-white/60">{copy.eyebrow}</p>
               <h1 className="mt-4 font-display text-5xl font-extrabold tracking-normal sm:text-7xl">{batch.type}</h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-white/72">
-                Harvested by {batch.farmer} at {batch.farm} in {batch.district}. This page proves origin,
-                freshness, zero-spoilage handling, and how to prepare the mushrooms at home.
+                {copy.subtitle(batch)}
               </p>
             </div>
             <MushroomJoyIllustration />
@@ -844,9 +923,9 @@ function PublicTraceabilityPage({ batch }: { batch: HarvestBatch }) {
             </div>
             <div className="grid gap-3 bg-cream/70 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
               <div>
-                <p className="font-display text-2xl font-extrabold">Watch how to prepare this batch</p>
+                <p className="font-display text-2xl font-extrabold">{copy.videoTitle}</p>
                 <p className="mt-1 text-sm leading-6 text-muted">
-                  A short guide for cleaning, cooking, and serving fresh IZUBA mushrooms.
+                  {copy.videoText}
                 </p>
               </div>
               <StatusPill icon={Play} label="20-30 sec guide" tone="blue" />
@@ -862,29 +941,29 @@ function PublicTraceabilityPage({ batch }: { batch: HarvestBatch }) {
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-4 px-4 pb-8 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:px-8">
-        <Panel title="Farm-to-fork proof" action={`Batch ${batch.id}`} icon={ShieldCheck}>
+        <Panel title={copy.proofTitle} action={copy.proofAction(batch)} icon={ShieldCheck}>
           <div className="grid gap-3 sm:grid-cols-3">
             <InfoRow label="Farmer" value={batch.farmer} />
             <InfoRow label="Farm" value={batch.farm} />
             <InfoRow label="Crop" value={batch.type} />
           </div>
           <div className="mt-4 grid gap-3">
-            <InsightBlock label="Customer scan" value="QR opens this page" detail="No app install needed. The browser shows origin, freshness, and preparation guidance." tone="blue" />
-            <InsightBlock label="Trust layer" value="Verified batch" detail="The same page proves farmer, route, reserved kilograms, and zero-spoilage handling." tone="dark" />
+            <InsightBlock label="Customer scan" value={copy.customerScan} detail={copy.customerScanDetail} tone="blue" />
+            <InsightBlock label="Trust layer" value={copy.trustLayer} detail={copy.trustLayerDetail} tone="dark" />
           </div>
         </Panel>
 
-        <Panel title="Product Information" action="Storage, cooking, and impact" icon={Leaf}>
+        <Panel title={copy.productTitle} action={copy.productAction} icon={Leaf}>
           <div className="grid gap-3 sm:grid-cols-2">
-            <InfoRow label="Storage" value="Keep refrigerated. Use within 3 days for best texture." />
-            <InfoRow label="Prep" value="Wipe clean, trim stems, avoid soaking before cooking." />
-            <InfoRow label="Cooking" value="High heat saute for 5-7 minutes until edges caramelize." />
-            <InfoRow label="Impact" value="Pre-ordered batch, farmer payout tracked, substrate recovered." />
+            <InfoRow label="Storage" value={copy.storage} />
+            <InfoRow label="Prep" value={copy.prep} />
+            <InfoRow label="Cooking" value={copy.cooking} />
+            <InfoRow label="Impact" value={copy.impact} />
           </div>
           <div className="mt-4 bg-organic/10 p-4">
-            <p className="font-display text-xl font-extrabold text-charcoal">Chef's 7-minute method</p>
+            <p className="font-display text-xl font-extrabold text-charcoal">{copy.methodTitle}</p>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Hot pan, small oil, do not crowd the mushrooms. Finish with salt, garlic, and a squeeze of lemon.
+              {copy.method}
             </p>
           </div>
         </Panel>

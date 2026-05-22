@@ -107,4 +107,16 @@ describe('IZUBA MVP', () => {
     expect(screen.queryByText('Admin Command')).not.toBeInTheDocument()
     expect(screen.queryByText('Switch demo role')).not.toBeInTheDocument()
   })
+
+  it('translates the public QR page to Kinyarwanda', async () => {
+    const user = userEvent.setup()
+    window.history.pushState({}, '', '/trace/nyamata-oyster-2401')
+    renderApp()
+
+    await user.click(screen.getByRole('button', { name: 'RW' }))
+
+    expect(screen.getByText('Igicuruzwa cyagenzuwe')).toBeInTheDocument()
+    expect(screen.getByText("Amakuru y'Igicuruzwa")).toBeInTheDocument()
+    expect(screen.getByText(/Reba uko wategura uyu musaruro/i)).toBeInTheDocument()
+  })
 })
