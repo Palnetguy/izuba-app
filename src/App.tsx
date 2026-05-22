@@ -50,6 +50,7 @@ import {
   type HarvestBatch,
 } from './data'
 import { reserveYield } from './lib/reservations'
+import farmToForkVideo from './assets/FARM_TO_FORK.mp4'
 
 type View = 'command' | 'restaurant' | 'farmer' | 'trace'
 type Role = 'admin' | 'restaurant' | 'farmer'
@@ -827,16 +828,30 @@ function TraceabilityPage({ batch }: { batch: HarvestBatch }) {
       <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
         <Panel title="Preparation Guide" action="Scan-to-cook customer content" icon={Play}>
           <div className="grid gap-4 md:grid-cols-[1fr_0.82fr]">
-            <div className="relative min-h-[260px] overflow-hidden bg-charcoal text-white">
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,91,159,0.38),rgba(22,163,74,0.28)),url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="grid h-20 w-20 place-items-center rounded-md bg-white/92 text-brand shadow-lift">
-                  <Play size={32} fill="currentColor" />
+            <div className="border border-gray-200 bg-white p-2 shadow-lift">
+              <div className="relative overflow-hidden bg-charcoal text-white">
+                <video
+                  className="aspect-video w-full bg-charcoal object-cover"
+                  src={farmToForkVideo}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  poster="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80"
+                >
+                  <track kind="captions" label="English" />
+                </video>
+                <div className="pointer-events-none absolute left-3 top-3 border border-white/20 bg-charcoal/75 px-3 py-2 backdrop-blur-md">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-white/70">Farm to fork</p>
                 </div>
               </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-charcoal/80 p-4 backdrop-blur-md">
-                <p className="font-bold">Oyster mushroom preparation video</p>
-                <p className="mt-1 text-sm text-white/65">Embed your real recipe video here before printing QR labels.</p>
+              <div className="grid gap-3 border-t border-gray-100 bg-cream/70 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+                <div>
+                  <p className="font-display text-xl font-extrabold">Watch how to prepare this batch</p>
+                  <p className="mt-1 text-sm leading-6 text-muted">
+                    A short customer-facing video that turns a QR scan into confidence, appetite, and brand trust.
+                  </p>
+                </div>
+                <StatusPill icon={Play} label="20-30 sec guide" tone="blue" />
               </div>
             </div>
             <div className="grid content-start gap-3">
@@ -853,6 +868,12 @@ function TraceabilityPage({ batch }: { batch: HarvestBatch }) {
             <InfoRow label="Prep" value="Wipe clean, trim stems, avoid soaking before cooking." />
             <InfoRow label="Cooking" value="High heat saute for 5-7 minutes until edges caramelize." />
             <InfoRow label="Impact" value="Pre-ordered batch, farmer payout tracked, substrate recovered." />
+          </div>
+          <div className="mt-4 border-l-4 border-organic bg-organic/10 p-4">
+            <p className="font-display text-xl font-extrabold text-charcoal">Chef's 7-minute method</p>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Hot pan, small oil, do not crowd the mushrooms. Finish with salt, garlic, and a squeeze of lemon.
+            </p>
           </div>
         </Panel>
       </section>

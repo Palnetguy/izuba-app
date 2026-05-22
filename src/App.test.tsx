@@ -91,6 +91,7 @@ describe('IZUBA MVP', () => {
     expect(screen.getByText('QR verified batch')).toBeInTheDocument()
     expect(screen.getByText('Farm-to-fork proof')).toBeInTheDocument()
     expect(screen.getByText('Preparation Guide')).toBeInTheDocument()
+    expect(screen.getByText('Watch how to prepare this batch')).toBeInTheDocument()
     expect(screen.getByText('Product Information')).toBeInTheDocument()
     expect(screen.getByText('Spoilage')).toBeInTheDocument()
     expect(screen.getByText(/verified origin/i)).toBeInTheDocument()
