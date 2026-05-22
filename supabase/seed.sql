@@ -1,3 +1,13 @@
+delete from public.order_items;
+delete from public.ledger_entries;
+delete from public.biomass_sales;
+delete from public.demand_signals;
+delete from public.farm_rooms;
+delete from public.orders;
+delete from public.harvest_batches;
+delete from public.restaurants;
+delete from public.farms;
+
 insert into public.farms (id, name, district, lead_farmer_name, female_farmer_count, active_tubes)
 values
   ('00000000-0000-0000-0000-000000000101', 'Nyamata Women Growers', 'Bugesera', 'Aline Mukamana', 38, 520),

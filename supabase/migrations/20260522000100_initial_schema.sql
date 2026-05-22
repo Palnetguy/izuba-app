@@ -135,6 +135,3 @@ create policy "demo read ledger" on public.ledger_entries for select using (true
 create policy "demo read biomass" on public.biomass_sales for select using (true);
 create policy "demo read farm rooms" on public.farm_rooms for select using (true);
 create policy "demo read demand signals" on public.demand_signals for select using (true);
-create policy "demo insert orders" on public.orders for insert with check (true);
-create policy "demo insert order items" on public.order_items for insert with check (true);
-create policy "demo update harvest reservations" on public.harvest_batches for update using (true) with check (true);

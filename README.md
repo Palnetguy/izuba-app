@@ -28,15 +28,31 @@ npm run build
 
 The app is demo-safe by default. It uses bundled data unless Supabase env vars are configured.
 
-1. Create a Supabase project.
-2. Run `supabase/schema.sql`.
-3. Run `supabase/seed.sql`.
-4. Copy `.env.example` to `.env.local`.
-5. Set:
+Project ref used for this MVP:
+
+```bash
+abgielctqjvdjcrlddis
+```
+
+CLI setup:
+
+```bash
+npx supabase login
+npx supabase init
+npx supabase link --project-ref abgielctqjvdjcrlddis
+npx supabase db push
+npx supabase db query --linked --file supabase/seed.sql
+```
+
+Environment:
+
+1. Copy `.env.example` to `.env`.
+2. Set:
 
 ```bash
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_PUBLISHABLE_KEY=
 VITE_DEMO_MODE=false
 ```
 
