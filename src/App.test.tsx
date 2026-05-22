@@ -27,7 +27,7 @@ describe('IZUBA MVP', () => {
   it('renders the login role chooser', () => {
     renderApp()
 
-    expect(screen.getByText('IZUBA demo login')).toBeInTheDocument()
+    expect(screen.getByText('IZUBA access portal')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /admin command/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /restaurant buyer/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /farmer ledger/i })).toBeInTheDocument()
@@ -90,6 +90,8 @@ describe('IZUBA MVP', () => {
 
     expect(screen.getByText('QR verified batch')).toBeInTheDocument()
     expect(screen.getByText('Farm-to-fork proof')).toBeInTheDocument()
+    expect(screen.getByText('Preparation Guide')).toBeInTheDocument()
+    expect(screen.getByText('Product Information')).toBeInTheDocument()
     expect(screen.getByText('Spoilage')).toBeInTheDocument()
     expect(screen.getByText(/verified origin/i)).toBeInTheDocument()
   })

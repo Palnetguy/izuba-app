@@ -26,6 +26,7 @@ import {
   LocateFixed,
   PackageCheck,
   QrCode,
+  Play,
   Route,
   Scale,
   ShieldCheck,
@@ -254,12 +255,12 @@ function LoginScreen({ onSelectRole }: { onSelectRole: (role: Role) => void }) {
           <div className="grid h-11 w-11 place-items-center rounded-md bg-charcoal text-white">
             <Leaf size={22} />
           </div>
-          <p className="mono-label mt-8 text-brand">IZUBA demo login</p>
+          <p className="mono-label mt-8 text-brand">IZUBA access portal</p>
           <h1 className="mt-3 font-display text-4xl font-extrabold tracking-normal sm:text-6xl">
-            Choose the role you want to pitch.
+            Sign in to your marketplace workspace.
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-muted">
-            One build, three workspaces: admin operations, restaurant pre-orders, and farmer revenue visibility.
+            Coordinate harvest planning, restaurant pre-orders, farmer payouts, and verified farm-to-fork traceability.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-3">
             <CompactStat label="Spoilage" value="0%" />
@@ -822,6 +823,39 @@ function TraceabilityPage({ batch }: { batch: HarvestBatch }) {
           </div>
         </div>
       </section>
+
+      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+        <Panel title="Preparation Guide" action="Scan-to-cook customer content" icon={Play}>
+          <div className="grid gap-4 md:grid-cols-[1fr_0.82fr]">
+            <div className="relative min-h-[260px] overflow-hidden bg-charcoal text-white">
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,91,159,0.38),rgba(22,163,74,0.28)),url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="grid h-20 w-20 place-items-center rounded-md bg-white/92 text-brand shadow-lift">
+                  <Play size={32} fill="currentColor" />
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 bg-charcoal/80 p-4 backdrop-blur-md">
+                <p className="font-bold">Oyster mushroom preparation video</p>
+                <p className="mt-1 text-sm text-white/65">Embed your real recipe video here before printing QR labels.</p>
+              </div>
+            </div>
+            <div className="grid content-start gap-3">
+              <InsightBlock label="Customer scan" value="QR opens this page" detail="No app install needed. The browser shows origin, freshness, and cooking guidance." tone="blue" />
+              <InsightBlock label="Recommended format" value="60-90 sec" detail="Short vertical video: clean, slice, saute, plate, and storage tip." tone="green" />
+              <InsightBlock label="Trust layer" value="Verified batch" detail="The same page proves farmer, route, reserved kilograms, and zero-spoilage handling." tone="dark" />
+            </div>
+          </div>
+        </Panel>
+
+        <Panel title="Product Information" action="What the customer learns" icon={Leaf}>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <InfoRow label="Storage" value="Keep refrigerated. Use within 3 days for best texture." />
+            <InfoRow label="Prep" value="Wipe clean, trim stems, avoid soaking before cooking." />
+            <InfoRow label="Cooking" value="High heat saute for 5-7 minutes until edges caramelize." />
+            <InfoRow label="Impact" value="Pre-ordered batch, farmer payout tracked, substrate recovered." />
+          </div>
+        </Panel>
+      </section>
     </ScreenFrame>
   )
 }
@@ -960,6 +994,15 @@ function UnitEconomicsTile({ label, value, detail }: { label: string; value: str
       <p className="mono-label text-muted">{label}</p>
       <p className="mt-2 text-3xl font-extrabold text-brand">{value}</p>
       <p className="mt-2 text-sm leading-5 text-muted">{detail}</p>
+    </div>
+  )
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-gray-200 bg-cream/70 p-3">
+      <p className="mono-label text-brand">{label}</p>
+      <p className="mt-2 text-sm font-semibold leading-6 text-charcoal">{value}</p>
     </div>
   )
 }

@@ -10,6 +10,19 @@ High-fidelity AgTech MVP for a just-in-time mushroom marketplace connecting rura
 - `/farmer` - Farmer ledger and grow-room dashboard
 - `/trace/nyamata-oyster-2401` - public QR traceability proof
 
+## QR Traceability Flow
+
+Print QR labels that point to a batch route such as `/trace/nyamata-oyster-2401`.
+When customers scan the code, they land on a public page with:
+
+- verified farm, farmer, batch, and freshness data
+- zero-spoilage logistics proof
+- storage and preparation guidance
+- recipe/preparation video area
+- sustainability impact and substrate recovery information
+
+For the final demo, host the real recipe video on YouTube, Vimeo, Supabase Storage, or Vercel `/public`, then embed it in the Preparation Guide section.
+
 ## Local Setup
 
 ```bash
