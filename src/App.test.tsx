@@ -56,7 +56,7 @@ describe('IZUBA MVP', () => {
     await user.click(screen.getByRole('button', { name: /restaurant buyer/i }))
     await user.click(screen.getByRole('button', { name: /reserve yield/i }))
 
-    expect(screen.getByText(/demo fallback active|supabase synced/i)).toBeInTheDocument()
+    expect(screen.getByText(/offline-safe reservation recorded|live data synced/i)).toBeInTheDocument()
     expect(screen.getByText('Buyer Delivery Timeline')).toBeInTheDocument()
   })
 
@@ -105,7 +105,7 @@ describe('IZUBA MVP', () => {
     expect(screen.getByText('Public QR page')).toBeInTheDocument()
     expect(screen.getByText('Watch how to prepare this batch')).toBeInTheDocument()
     expect(screen.queryByText('Admin Command')).not.toBeInTheDocument()
-    expect(screen.queryByText('Switch demo role')).not.toBeInTheDocument()
+    expect(screen.queryByText('Switch workspace')).not.toBeInTheDocument()
   })
 
   it('translates the public QR page to Kinyarwanda', async () => {

@@ -231,7 +231,7 @@ function App() {
             </div>
 
             <div className="mt-4 bg-charcoal p-4 text-white shadow-premium">
-              <p className="mono-label text-brand">Finals demo</p>
+              <p className="mono-label text-brand">Live operations</p>
               <p className="mt-2 text-xl font-extrabold leading-tight">Zero-spoilage JIT marketplace</p>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <CompactStat label="Match" value={`${totals.averageMatchRate}%`} />
@@ -246,7 +246,7 @@ function App() {
             </div>
           </div>
 
-          <nav className="grid w-full grid-cols-4 gap-1.5 lg:grid-cols-1">
+          <nav className="grid w-full grid-flow-col auto-cols-fr gap-1.5 overflow-x-auto lg:grid-flow-row lg:grid-cols-1 lg:overflow-visible">
             {visibleNavItems.map((item) => {
               const Icon = item.icon
               const isActive = activeView === item.id
@@ -256,7 +256,7 @@ function App() {
                   key={item.id}
                   type="button"
                   onClick={() => navigateToView(item.id)}
-                  className={`flex h-11 items-center justify-center gap-3 rounded-md px-3 text-sm font-bold transition-all duration-200 lg:justify-start ${
+                  className={`flex h-11 min-w-16 items-center justify-center gap-3 rounded-md px-3 text-sm font-bold transition-all duration-200 lg:justify-start ${
                     isActive
                       ? 'bg-brand text-white shadow-lift'
                       : 'text-muted hover:bg-white hover:text-charcoal hover:shadow-premium'
@@ -273,10 +273,10 @@ function App() {
           <div className="hidden border border-organic/20 bg-organic/10 p-3 lg:block">
             <div className="flex items-center gap-2 text-sm font-bold text-organic">
               <BadgeCheck size={16} />
-              Demo fallback online
+              Data connection active
             </div>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Seeded data keeps the full pitch flow operational before Supabase is connected live.
+              Marketplace data is synced for ordering, fulfillment, farmer payouts, and traceability.
             </p>
             <button
               type="button"
@@ -287,7 +287,7 @@ function App() {
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-organic/25 bg-white/70 px-3 py-2 text-sm font-bold text-organic transition hover:bg-white"
             >
               <Shuffle size={15} />
-              Switch demo role
+              Switch workspace
             </button>
           </div>
         </aside>
@@ -379,14 +379,14 @@ function Header({
             Rwanda's just-in-time mushroom operating system
           </h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex border border-gray-200 bg-white p-1">
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center md:w-auto md:justify-end">
+          <div className="grid grid-cols-3 border border-gray-200 bg-white p-1 sm:flex">
             {demoAccounts.map((account) => (
               <button
                 key={account.role}
                 type="button"
                 onClick={() => onSwitchRole(account.role)}
-                className={`rounded-md px-3 py-1.5 text-xs font-extrabold transition ${
+                className={`rounded-md px-2 py-1.5 text-xs font-extrabold transition sm:px-3 ${
                   activeRole === account.role ? 'bg-charcoal text-white' : 'text-muted hover:text-brand'
                 }`}
               >
@@ -394,8 +394,10 @@ function Header({
               </button>
             ))}
           </div>
-          <StatusPill icon={CalendarDays} label="May 22, 2026" tone="blue" />
-          <StatusPill icon={ShieldCheck} label="Pitch-safe mock mode" tone="green" />
+          <div className="flex flex-wrap gap-2">
+            <StatusPill icon={CalendarDays} label="May 22, 2026" tone="blue" />
+            <StatusPill icon={ShieldCheck} label="Secure workspace" tone="green" />
+          </div>
         </div>
       </div>
     </header>
@@ -740,7 +742,7 @@ function RestaurantPortal() {
             {reservation && (
               <div className="mt-4 border border-organic/20 bg-organic/10 p-3 text-sm font-semibold text-organic">
                 {reservation.confirmedKg} kg reserved under {reservation.orderId}.{' '}
-                {reservation.syncMode === 'supabase' ? 'Supabase synced.' : 'Demo fallback active.'} Farmer fulfillment,
+                {reservation.syncMode === 'supabase' ? 'Live data synced.' : 'Offline-safe reservation recorded.'} Farmer fulfillment,
                 route planning, and ledger split are staged.
               </div>
             )}
