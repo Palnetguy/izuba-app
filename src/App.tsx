@@ -124,7 +124,7 @@ const unitEconomics = {
 
 const traceVideoUrl =
   import.meta.env.VITE_TRACE_VIDEO_URL ||
-  'https://1drv.ms/v/c/54827174f18c3094/IQDPqU3R3LRNRKrLfp4orOcdAZEA3OXpOJRdiIJKorQZnI0?e=eaB4yb'
+  'https://abgielctqjvdjcrlddis.supabase.co/storage/v1/object/public/izuba-media/farm-to-fork-web.mp4'
 
 const publicCopy = {
   en: {
@@ -1020,7 +1020,6 @@ function TraceVideoPlayer({ videoUrl }: { videoUrl: string }) {
           className="aspect-video w-full bg-charcoal"
           src={videoUrl}
           allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-          allowFullScreen
         />
       )}
       <div className="pointer-events-none absolute left-3 top-3 border border-white/20 bg-charcoal/75 px-3 py-2 backdrop-blur-md">

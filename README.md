@@ -23,6 +23,14 @@ When customers scan the code, they land on a public page with:
 
 For the final demo, host the real recipe video on YouTube, Vimeo, Supabase Storage, or Vercel `/public`, then embed it in the Preparation Guide section.
 
+Current video hosting:
+
+```bash
+https://abgielctqjvdjcrlddis.supabase.co/storage/v1/object/public/izuba-media/farm-to-fork-web.mp4
+```
+
+The source video was compressed to a web-friendly MP4 before upload so the QR page can use the native browser video player.
+
 ## Local Setup
 
 ```bash
