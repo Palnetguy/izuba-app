@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+src/assets/*.mp4
+src/assets/*.mov
+src/assets/*.webm
 .env
 .env.*
 !.env.example

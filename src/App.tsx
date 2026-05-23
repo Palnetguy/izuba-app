@@ -50,7 +50,6 @@ import {
   type HarvestBatch,
 } from './data'
 import { reserveYield } from './lib/reservations'
-import farmToForkVideo from './assets/FARM_TO_FORK.mp4'
 
 type View = 'command' | 'restaurant' | 'farmer' | 'trace'
 type Role = 'admin' | 'restaurant' | 'farmer'
@@ -122,6 +121,10 @@ const unitEconomics = {
   farmerPayout: 0.75,
   wasteCapture: 100,
 }
+
+const traceVideoUrl =
+  import.meta.env.VITE_TRACE_VIDEO_URL ||
+  'https://1drv.ms/v/c/54827174f18c3094/IQDPqU3R3LRNRKrLfp4orOcdAZEA3OXpOJRdiIJKorQZnI0?e=eaB4yb'
 
 const publicCopy = {
   en: {
@@ -908,21 +911,7 @@ function PublicTraceabilityPage({ batch }: { batch: HarvestBatch }) {
 
         <div className="grid gap-4">
           <div className="border border-gray-200 bg-white p-3 shadow-lift">
-            <div className="relative overflow-hidden bg-charcoal text-white">
-              <video
-                className="aspect-video w-full bg-charcoal object-cover"
-                src={farmToForkVideo}
-                controls
-                playsInline
-                preload="metadata"
-                poster="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80"
-              >
-                <track kind="captions" label="English" />
-              </video>
-              <div className="pointer-events-none absolute left-3 top-3 border border-white/20 bg-charcoal/75 px-3 py-2 backdrop-blur-md">
-                <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-white/70">Farm to fork</p>
-              </div>
-            </div>
+            <TraceVideoPlayer videoUrl={traceVideoUrl} />
             <div className="grid gap-3 bg-cream/70 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
               <div>
                 <p className="font-display text-2xl font-extrabold">{copy.videoTitle}</p>
@@ -930,7 +919,15 @@ function PublicTraceabilityPage({ batch }: { batch: HarvestBatch }) {
                   {copy.videoText}
                 </p>
               </div>
-              <StatusPill icon={Play} label="20-30 sec guide" tone="blue" />
+              <a
+                href={traceVideoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-brand px-3 py-2 text-sm font-extrabold text-white shadow-premium transition hover:-translate-y-0.5"
+              >
+                <Play size={15} fill="currentColor" />
+                Open video
+              </a>
             </div>
           </div>
 
@@ -997,6 +994,38 @@ function MushroomJoyIllustration() {
         <circle cx="278" cy="55" r="4" fill="#2D2D2D" />
         <path d="M250 72c10 8 22 8 32 0" stroke="#2D2D2D" strokeWidth="5" strokeLinecap="round" />
       </svg>
+    </div>
+  )
+}
+
+function TraceVideoPlayer({ videoUrl }: { videoUrl: string }) {
+  const isDirectVideo = /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(videoUrl)
+
+  return (
+    <div className="relative overflow-hidden bg-charcoal text-white">
+      {isDirectVideo ? (
+        <video
+          className="aspect-video w-full bg-charcoal object-cover"
+          src={videoUrl}
+          controls
+          playsInline
+          preload="metadata"
+          poster="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80"
+        >
+          <track kind="captions" label="English" />
+        </video>
+      ) : (
+        <iframe
+          title="IZUBA farm-to-fork preparation video"
+          className="aspect-video w-full bg-charcoal"
+          src={videoUrl}
+          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+          allowFullScreen
+        />
+      )}
+      <div className="pointer-events-none absolute left-3 top-3 border border-white/20 bg-charcoal/75 px-3 py-2 backdrop-blur-md">
+        <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-white/70">Farm to fork</p>
+      </div>
     </div>
   )
 }
